@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+.idea/
+__pycache__/
+*.pyc
+*.user
+*.DotSettings.user
+.godot/
+shots/
+logs/
+art-backup/
+game/art-preview/
+Thumbs.db
+desktop.ini

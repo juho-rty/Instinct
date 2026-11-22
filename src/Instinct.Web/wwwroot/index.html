@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instinct — 본능 문명 시뮬레이터</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10); --wash: rgba(11,11,11,0.05);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --o1: #86b6ef; --o2: #5598e7; --o3: #2a78d6; --o4: #1c5cab; --o5: #104281;
+    --accent: #2a78d6; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --wash: rgba(255,255,255,0.06);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --o1: #9ec5f4; --o2: #6da7ec; --o3: #3987e5; --o4: #256abf; --o5: #184f95;
+      --accent: #3987e5; --critical: #e66767;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--page); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; display: flex; flex-direction: column; }
+  button, select, input { font: inherit; color: inherit; }
+  button, select, input[type=number] { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; }
+  button { cursor: pointer; }
+  button:hover { background: var(--wash); }
+  button.primary { background: var(--accent); border-color: transparent; color: #fff; min-width: 76px; }
+  input[type=number] { width: 72px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 16px; margin: 0; }
+  #when { font-weight: 600; }
+  #polity { color: var(--ink2); }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: auto; }
+  .controls label { color: var(--ink2); display: flex; align-items: center; gap: 4px; }
+  .sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+  main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(340px, 0.9fr) minmax(480px, 1.5fr) 320px; gap: 12px; padding: 12px; }
+  #mapWrap { width: 100%; line-height: 0; text-align: center; border-radius: 6px; overflow: hidden; background: #5496c4; }
+  #map { display: inline-block; cursor: crosshair; }
+  #mapLegend { margin: 8px 0 0; }
+  .mid-fill { min-height: 300px; }
+  #tech { flex: 1; min-height: 0; overflow: auto; display: none; }
+  #techNow { font-size: 13px; color: var(--ink2); margin-bottom: 8px; }
+  #techNow b { color: var(--ink); }
+  #techTree { position: relative; display: grid; grid-template-columns: repeat(6, minmax(112px, 1fr)); gap: 0 18px; min-width: 760px; }
+  #techTree svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #techTree svg path { opacity: .3; transition: opacity .12s; }
+  #techTree svg path.hl { opacity: 1; stroke: var(--accent); stroke-width: 2.6; }
+  .tcol { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1; }
+  .tcol h3 { font-size: 12px; margin: 0; color: var(--ink2); font-weight: 600; border-bottom: 1px solid var(--grid); padding-bottom: 2px; }
+  .tcol.future h3 { color: var(--muted); }
+  .tech { border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; background: var(--surface); font-size: 12px; text-align: left; width: 100%; line-height: 1.35; }
+  .tech .tn { font-weight: 600; display: block; }
+  .tech .tc { color: var(--muted); font-size: 11px; display: block; }
+  .tech.known { background: color-mix(in srgb, var(--s3) 16%, var(--surface)); border-color: color-mix(in srgb, var(--s3) 55%, transparent); }
+  .tech.can { border-color: var(--accent); cursor: pointer; }
+  .tech.now { border: 2px solid var(--accent); padding: 4px 6px; }
+  .tech.locked { opacity: 0.5; cursor: default; }
+  .tech .bar { display: block; height: 4px; border-radius: 2px; background: var(--wash); margin-top: 4px; overflow: hidden; }
+  .tech .bar i { display: block; height: 100%; background: var(--accent); }
+  #tip .r.plain { display: block; color: var(--ink2); max-width: 280px; }
+  #tip .h.strong { color: var(--ink); font-weight: 600; }
+  td.dim { color: var(--muted); }
+  .col { min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .card h2 { font-size: 13px; margin: 0 0 2px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+  .fill { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+  .needs { display: grid; gap: 4px; color: var(--ink2); font-size: 13px; }
+  .needs b { color: var(--ink); font-weight: 600; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .tile { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; min-width: 0; }
+  .tile .l { color: var(--ink2); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile .v { font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .tile .d { color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink2); margin-bottom: 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend b { color: var(--ink); font-weight: 600; }
+  .key-line { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
+  .key-box { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  svg.chart { display: block; width: 100%; outline: none; }
+  svg.chart:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  svg text { font: 11px system-ui, "Segoe UI", "Malgun Gothic", sans-serif; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  details.table { margin-top: 8px; font-size: 12px; }
+  details.table summary { color: var(--ink2); cursor: pointer; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th, td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th { color: var(--ink2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+  th:first-child, td:first-child, td.t, th.t { text-align: left; }
+  td.wrap { white-space: normal; text-align: left; color: var(--ink2); min-width: 160px; }
+  .scroll { overflow: auto; max-height: 240px; }
+
+  #tip { position: fixed; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); display: none; z-index: 10; min-width: 150px; }
+  #tip .h { color: var(--ink2); margin-bottom: 4px; }
+  #tip .r { display: flex; align-items: center; gap: 6px; }
+  #tip .r b { margin-left: auto; padding-left: 12px; font-weight: 600; }
+  #tip .r span.n { color: var(--ink2); }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 8px; align-items: center; }
+  .tabs button[aria-selected=true] { background: var(--wash); font-weight: 600; }
+  .tabs label { margin-left: auto; color: var(--ink2); font-size: 12px; display: flex; gap: 4px; align-items: center; }
+  #log { flex: 1; min-height: 0; overflow: auto; font-size: 13px; }
+  #log div { padding: 3px 0; border-bottom: 1px solid var(--grid); }
+  #log .y { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; }
+  #log .k1 { color: var(--ink2); display: none; }
+  #log.minor .k1 { display: block; }
+  #log .k2 { color: var(--muted); font-size: 12px; }
+  #log .tag { font-weight: 600; }
+  #log .dark .tag { color: var(--critical); }
+  #people { flex: 1; min-height: 0; overflow: auto; display: none; }
+  #deaths { color: var(--ink2); font-size: 12px; margin-top: 8px; }
+
+  .era { margin-bottom: 6px; }
+  .era > summary { cursor: pointer; font-weight: 600; font-size: 13px; padding: 4px 0; }
+  .era > summary small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .inst { display: grid; grid-template-columns: auto 1fr; gap: 0 8px; padding: 6px 0; border-top: 1px solid var(--grid); }
+  .inst input { margin-top: 4px; }
+  .inst .n { font-weight: 600; }
+  .inst .n small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .inst .g, .inst .c { grid-column: 2; font-size: 12px; color: var(--ink2); }
+  .inst .g i, .inst .c i { font-style: normal; color: var(--muted); margin-right: 4px; }
+  .inst .r { grid-column: 2; font-size: 12px; color: var(--ink); }
+  .inst .r i { font-style: normal; color: var(--muted); margin-right: 4px; }
+  .inst.locked { opacity: 0.55; }
+  .meter { display: inline-block; width: 64px; height: 6px; border-radius: 3px; background: var(--wash); vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .meter i { display: block; height: 100%; border-radius: 3px; background: var(--s1); }
+  .chips span { display: inline-block; border: 1px solid var(--border); border-radius: 10px; padding: 0 6px; margin: 1px 2px 1px 0; font-size: 11px; color: var(--ink2); }
+  #estatesCard, #rivalsCard { display: none; }
+  #over { color: var(--critical); font-weight: 600; display: none; }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; overflow: auto; } .col { overflow: visible; } #log, #people, #tech { max-height: 420px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Instinct</h1>
+  <span id="when">—</span>
+  <span id="polity"></span>
+  <span id="over">아무도 남지 않았다.</span>
+  <div class="controls">
+    <button id="play" class="primary">▶ 진행</button>
+    <label>빠르기
+      <select id="speed">
+        <option value="slow">한 철씩</option>
+        <option value="normal" selected>한 해씩</option>
+        <option value="fast">5년씩</option>
+        <option value="max">25년씩</option>
+      </select>
+    </label>
+    <button id="step1" title="한 해를 진행한다">+1년</button>
+    <button id="step10" title="열 해를 진행한다">+10년</button>
+    <span class="sep"></span>
+    <label title="쓸 수 있게 된 제도를 해마다 조금씩 알아서 도입한다. 끝까지 구경하는 용도."><input type="checkbox" id="auto"> 제도 자동 도입</label>
+    <span class="sep"></span>
+    <label>씨앗 <input type="number" id="seed" value="1" min="1"></label>
+    <button id="new">새 역사</button>
+  </div>
+</header>
+
+<main>
+  <section class="col">
+    <div class="card">
+      <div class="needs">
+        <div>다음 단계 — <b id="nextStage"></b></div>
+        <div>다음 시대 — <b id="nextEra"></b></div>
+      </div>
+    </div>
+    <div class="card"><div class="tiles" id="tiles"></div></div>
+
+    <div class="card" id="estatesCard">
+      <h2>계층</h2>
+      <p class="sub">제도마다 얻는 계층과 잃는 계층이 있다. 분노가 55~60%를 넘으면 귀족은 정변·반란, 예속민은 봉기, 노동자는 총파업으로 움직인다.</p>
+      <table id="estatesTable"></table>
+    </div>
+    <div class="card" id="rivalsCard">
+      <h2>이웃 나라</h2>
+      <p class="sub">적의가 낮으면 장삿길이 열리고, 높으면 전쟁이 난다. 장삿길로는 문물과 낯선 믿음과 소문이 함께 온다.</p>
+      <table id="rivalsTable"></table>
+      <div class="sub" id="heresy" style="margin:8px 0 0"></div>
+    </div>
+
+    <div class="card">
+      <h2>자원</h2>
+      <p class="sub">기술이 있어야 땅속의 것을 알아본다. 우리 땅에서 나면 온전히 쓰고, 장삿길로 사 오면 절반만 쓴다. 없으면 칼로 빼앗는 길이 남는다.</p>
+      <table id="resTable"></table>
+    </div>
+
+    <div class="card">
+      <h2>사람 수</h2>
+      <p class="sub">부족 때는 이름 있는 사람, 군장사회부터는 백성. 로그 눈금. 아래 띠는 나라의 단계.</p>
+      <div class="legend" id="stageLegend"></div>
+      <svg class="chart" id="popChart" height="190" tabindex="0" role="img" aria-label="해마다의 사람 수와 나라의 단계. 화살표 키로 해를 옮긴다."></svg>
+    </div>
+
+    <div class="card">
+      <h2>민심</h2>
+      <p class="sub">군장사회가 되면 그려진다. 모두 0~100%.</p>
+      <div class="legend" id="moodLegend"></div>
+      <svg class="chart" id="moodChart" height="180" tabindex="0" role="img" aria-label="해마다의 불만, 정통성, 결속, 불평등. 화살표 키로 해를 옮긴다."></svg>
+      <details class="table"><summary>표로 보기</summary><div class="scroll"><table id="histTable"></table></div></details>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="card">
+      <h2>땅</h2>
+      <p class="sub">땅 조각마다 지형과 주인이 있다. 걸어 다니는 사람 가운데 큰 쪽이 이름 있는 사람들이다(왕관은 우두머리, 잿빛은 종). 땅이나 사람을 가리키면 설명이 뜬다.</p>
+      <div id="mapWrap"><canvas id="map" role="img" aria-label="땅의 지도. 지형, 국경, 도성, 자원, 걸어 다니는 사람들."></canvas></div>
+      <div class="legend" id="mapLegend"></div>
+    </div>
+    <div class="card fill mid-fill">
+      <div class="tabs" role="tablist">
+        <button id="tabLog" role="tab" aria-selected="true">연대기</button>
+        <button id="tabPeople" role="tab" aria-selected="false">사람들</button>
+        <button id="tabTech" role="tab" aria-selected="false">기술</button>
+        <label id="minorWrap"><input type="checkbox" id="minor"> 사소한 일도 보기</label>
+      </div>
+      <div id="log"></div>
+      <div id="tech">
+        <div id="techNow"></div>
+        <div id="techTree"></div>
+      </div>
+      <div id="people">
+        <table id="peopleTable"></table>
+        <div id="deaths"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="card">
+      <h2>제도</h2>
+      <p class="sub">본능은 없앨 수 없고, 제도는 그 방향만 바꾼다. 들이는 데도 없애는 데도 값이 들고, 잃는 쪽은 반발한다. 한꺼번에 여럿을 고치면 값이 뛴다.</p>
+      <div id="inst"></div>
+    </div>
+  </section>
+</main>
+<div id="tip"></div>
+
+<script src="map.js"></script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const svgNS = 'http://www.w3.org/2000/svg';
+const sv = (tag, attrs) => { const e = document.createElementNS(svgNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const num = n => Math.round(n).toLocaleString('en-US');
+const compact = n => n >= 1e6 ? (n / 1e6).toFixed(n % 1e6 ? 1 : 0) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 || n % 1e3 === 0 ? 0 : 1) + 'K' : String(Math.round(n));
+const pct = x => Math.round(x * 100) + '%';
+
+const SPEEDS = { slow: [1, 700], normal: [4, 400], fast: [20, 300], max: [100, 250] };
+// history 한 줄: [해, 단계, 시대, 사람 수, 지배 가문, 영토, 곳간, 지식, 불만, 억눌림, 정통성, 불평등, 부패, 결속]
+const H = { year: 0, stage: 1, era: 2, pop: 3, court: 4, terr: 5, unrest: 8, legit: 10, ineq: 11, coh: 13 };
+const MOOD = [['불만', H.unrest, '--s1'], ['정통성', H.legit, '--s2'], ['결속', H.coh, '--s3'], ['불평등', H.ineq, '--s4']];
+const STAGE_COLORS = ['--o1', '--o2', '--o3', '--o4', '--o5'];
+const ERAS = ['원시', '고대', '중세', '근세', '근대', '현대'];
+const DARK_TAGS = ['몰락', '학살', '마녀사냥', '숙청', '역병', '기근', '총력전', '식민지 수탈', '정복'];
+
+let S = null, gameId = -1, logCount = 0, hist = [], playing = false, busy = false, hover = -1, instSig = '', techSig = '', tipSig = '', curTab = 'log';
+
+// 지도의 말풍선: 줄 목록 [['h'|'r', 글]]을 받는다. 같은 내용이면 자리만 옮긴다.
+function mapTip(rows, px, py) {
+  const tip = $('tip');
+  if (!rows) { if (tipSig) { tip.style.display = 'none'; tipSig = ''; } return; }
+  const sig = rows.map(r => r[1]).join('\n');
+  if (sig !== tipSig) {
+    tipSig = sig;
+    tip.replaceChildren(...rows.map(([k, t]) => el('div', k === 'h' ? 'h strong' : 'r plain', t)));
+    tip.style.display = 'block';
+  }
+  const w = tip.offsetWidth, hgt = tip.offsetHeight;
+  tip.style.left = Math.min(px + 14, innerWidth - w - 8) + 'px';
+  tip.style.top = Math.max(8, Math.min(py - hgt - 10, innerHeight - hgt - 8)) + 'px';
+}
+GameMap.init($('map'), mapTip);
+async function loadMap(id) {
+  try {
+    const m = await (await fetch('/api/map')).json();
+    if (m.gameId === gameId) { GameMap.setShape(m); if (S) GameMap.update(S); }
+  } catch (e) { /* 다음 판에 다시 받는다 */ }
+}
+
+async function call(path, method = 'POST') {
+  if (busy) return;
+  busy = true;
+  try {
+    const sep = path.includes('?') ? '&' : '?';
+    const r = await fetch(`${path}${sep}since=${logCount}&hist=${hist.length}`, { method });
+    apply(await r.json());
+  } catch (e) {
+    setPlaying(false);
+    $('polity').textContent = '서버와 연결이 끊겼다 — play.cmd 를 다시 실행하세요.';
+  } finally { busy = false; }
+}
+
+function apply(s) {
+  if (s.gameId !== gameId) {
+    gameId = s.gameId; logCount = 0; hist = []; hover = -1; instSig = ''; techSig = '';
+    $('log').replaceChildren();
+    loadMap(gameId);
+  }
+  const fresh = S !== null && logCount > 0 ? s.log.slice(Math.max(0, logCount - s.logStart)) : [];
+  S = s;
+  if (s.histStart <= hist.length) hist = hist.slice(0, s.histStart).concat(s.history);
+  appendLog(s);
+  logCount = s.logCount;
+  GameMap.update(S);
+  if (fresh.length && fresh.length < 60) GameMap.notify(fresh.filter(e => e.k === 0));
+  $('mapLegend').replaceChildren(...GameMap.legend().map(([c, n]) => { const sp = el('span'); const k = el('i', 'key-box'); k.style.background = c; sp.append(k, n); return sp; }));
+  renderHeader(); renderTiles(); renderEstates(); renderRivals(); renderResources(); renderInst(); renderCharts();
+  if (curTab === 'people') renderPeople();
+  if (curTab === 'tech') renderTech();
+  if (s.living === 0) setPlaying(false);
+}
+
+// ───────── 머리줄·요약 ─────────
+function renderHeader() {
+  $('when').textContent = `${S.year}년 ${S.season}`;
+  const who = S.chief ? ` · ${S.rulerTitle} ${S.chief}` : '';
+  $('polity').textContent = `${S.era} · ${S.stage}${who}`;
+  $('nextStage').textContent = S.nextStage || '더 오를 곳이 없다. 이제 남은 것은 지키는 일뿐이다.';
+  $('nextEra').textContent = S.nextEra || '마지막 시대에 닿았다.';
+  $('over').style.display = S.living === 0 ? 'inline' : 'none';
+  $('auto').checked = S.auto;
+  $('seed').value = S.seed;
+}
+
+function renderTiles() {
+  const r = S.realm, tribe = S.stageIndex === 0;
+  const tiles = tribe ? [
+    ['사람', num(S.living), `가장 많았을 때 ${S.peakLiving}명`],
+    ['공동 창고', num(S.store), '식량'],
+    ['지식', num(r.knowledge), S.era],
+    ['태어난 사람', num(S.births), '지금까지'],
+  ] : [
+    ['백성', compact(r.pop), `땅이 먹이는 수 ${compact(r.landCap)}`],
+    ['영토', r.territory, r.territory > r.admin ? `다스릴 수 있는 땅 ${r.admin} — 넘쳤다` : `다스릴 수 있는 땅 ${r.admin}`],
+    ['지배 가문', num(S.living), r.dynasty ? `${r.dynasty}족 왕조 ${r.dynastyAge}년째` : ''],
+    ['곳간', r.treasury.toFixed(1), r.treasury < 0 ? '빚을 지고 있다' : '한 해 세입 = 1'],
+    ['지식', num(r.knowledge), `기술 ${S.research.known}/${S.research.total}`],
+    ['불만', pct(r.unrest), `억눌린 불만 ${pct(r.suppressed)}`],
+    ['정통성', pct(r.legitimacy), `부패 ${pct(r.corruption)}`],
+    ['결속', pct(r.cohesion), `나라가 선 지 ${r.stateAge}년`],
+    ['몰락', r.collapses + '회', r.falls.length ? r.falls.map(f => `${f.year}년 ${f.kind}`).join(' · ') : `가장 컸을 때 ${S.peakStage}`],
+  ];
+  $('tiles').replaceChildren(...tiles.map(([l, v, d]) => {
+    const t = el('div', 'tile');
+    t.append(el('div', 'l', l), el('div', 'v', v), el('div', 'd', d));
+    return t;
+  }));
+}
+
+// ───────── 계층·이웃 나라 ─────────
+function meterCell(v) {
+  const td = el('td'), m = el('span', 'meter'), bar = el('i');
+  bar.style.width = Math.round(v * 100) + '%';
+  m.append(bar); td.append(m, document.createTextNode(pct(v)));
+  return td;
+}
+function headRow(names, leftCols) {
+  const tr = el('tr');
+  names.forEach((h, i) => tr.append(el('th', leftCols.includes(i) ? 't' : '', h)));
+  return tr;
+}
+function renderEstates() {
+  const show = S.stageIndex > 0;
+  $('estatesCard').style.display = show ? 'block' : 'none';
+  if (!show) return;
+  const rows = S.estates.filter(e => e.share >= 0.005).map(e => {
+    const tr = el('tr');
+    tr.append(el('td', 't', e.name), meterCell(e.share), meterCell(e.anger),
+      el('td', '', e.grievance >= 0.01 ? '+' + pct(e.grievance) : '—'));
+    return tr;
+  });
+  $('estatesTable').replaceChildren(headRow(['계층', '백성 가운데', '분노', '개혁으로 쌓인 것'], [0]), ...rows);
+}
+function renderRivals() {
+  const show = S.rivals.length > 0;
+  $('rivalsCard').style.display = show ? 'block' : 'none';
+  if (!show) return;
+  const rows = S.rivals.map(v => {
+    const tr = el('tr'), rel = el('td', 'wrap chips');
+    const tags = [];
+    if (v.allied) tags.push('혼인 동맹');
+    if (v.treaty > 0) tags.push(`화친 ${v.treaty}년`);
+    if (v.trade) tags.push('교역');
+    if (v.otherFaith) tags.push('다른 믿음');
+    if (v.ahead) tags.push('앞선 문물');
+    if (v.free) tags.push('백성이 뽑는 나라');
+    tags.forEach(t => rel.append(el('span', '', t)));
+    tr.append(el('td', 't', v.name), el('td', '', v.strength.toFixed(2)), meterCell(v.hostility), rel);
+    return tr;
+  });
+  $('rivalsTable').replaceChildren(headRow(['나라', '군사력', '적의', '관계'], [0, 3]), ...rows);
+  $('heresy').textContent = S.realm.heresy >= 0.01 ? `낯선 믿음이 백성 사이에 ${pct(S.realm.heresy)} 퍼져 있다.` : '';
+}
+
+// ───────── 연대기 ─────────
+function appendLog(s) {
+  const box = $('log');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  const skip = Math.max(0, logCount - s.logStart); // 이미 받은 줄
+  const frag = document.createDocumentFragment();
+  s.log.slice(skip).forEach(e => {
+    const row = el('div', 'k' + e.k);
+    const seasons = ['봄', '여름', '가을', '겨울'];
+    if (e.k !== 2) row.append(el('span', 'y', `${Math.floor(e.t / 4) + 1}년 ${seasons[e.t % 4]}`));
+    const m = /^【(.+?)】\s*(.*)$/s.exec(e.x);
+    if (m) {
+      if (DARK_TAGS.includes(m[1])) row.classList.add('dark');
+      row.append(el('span', 'tag', `【${m[1]}】 `), document.createTextNode(m[2]));
+    } else row.append(document.createTextNode(e.x));
+    frag.append(row);
+  });
+  box.append(frag);
+  while (box.childElementCount > 1500) box.firstElementChild.remove();
+  if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+// ───────── 사람들 ─────────
+function renderPeople() {
+  const t = $('peopleTable');
+  const head = el('tr');
+  ['이름', '나이', '지위', ...S.traitNames, '가장 큰 원한'].forEach((h, i) => {
+    const th = el('th', i === 0 || i === 9 ? 't' : '', i >= 3 && i < 9 ? h[0] : h);
+    if (i >= 3 && i < 9) th.title = h + ' (0~100)';
+    head.append(th);
+  });
+  const rows = S.people.map(p => {
+    const tr = el('tr');
+    const marks = (p.chief ? ' ★' : '') + (p.outsider ? ' (바깥 핏줄)' : '');
+    tr.append(el('td', 't', `${p.name} ${p.male ? '♂' : '♀'}${marks}`), el('td', '', p.age), el('td', '', p.status));
+    p.traits.forEach(v => tr.append(el('td', '', v)));
+    tr.append(el('td', 'wrap', p.grudge || ''));
+    return tr;
+  });
+  t.replaceChildren(head, ...rows);
+  $('deaths').textContent = (S.living > S.people.length ? `지위가 높은 ${S.people.length}명만 보인다 (모두 ${S.living}명). ` : '')
+    + '죽음·이탈: ' + (S.deaths.map(d => `${d.cause} ${d.n}`).join(' · ') || '아직 없음');
+}
+
+// ───────── 제도 ─────────
+function renderInst() {
+  const sig = S.institutions.map(d => (d.on ? 1 : 0) + (d.available ? 2 : 0) + d.reform + (d.why || '')).join('|') + S.era;
+  if (sig === instSig) return;
+  const open = new Set([...document.querySelectorAll('.era[open]')].map(d => d.dataset.era));
+  const first = instSig === '';
+  instSig = sig;
+  const box = $('inst');
+  box.replaceChildren(...ERAS.map(era => {
+    const list = S.institutions.filter(d => d.era === era);
+    const det = el('details', 'era');
+    det.dataset.era = era;
+    const usable = list.filter(d => d.available || d.on).length;
+    det.open = first ? usable > 0 : open.has(era) || (usable > 0 && era === S.era);
+    const sum = el('summary', '', era);
+    sum.append(el('small', '', `${list.filter(d => d.on).length}/${list.length} 도입` + (usable ? '' : ' · 아직 멀다')));
+    det.append(sum);
+    list.forEach(d => {
+      const locked = !d.available && !d.on;
+      const row = el('label', 'inst' + (locked ? ' locked' : ''));
+      const cb = el('input');
+      cb.type = 'checkbox'; cb.checked = d.on; cb.disabled = locked;
+      cb.addEventListener('change', () => call('/api/toggle?key=' + encodeURIComponent(d.key)));
+      const n = el('div', 'n', d.name);
+      if (locked) n.append(el('small', '', d.why || `${d.era}·${d.stage}부터`));
+      const g = el('div', 'g'); g.append(el('i', '', '얻는 것'), document.createTextNode(d.gain));
+      const c = el('div', 'c'); c.append(el('i', '', '치르는 값'), document.createTextNode(d.cost));
+      row.append(cb, n, g, c);
+      const sides = [d.winners.length ? '얻는 쪽 ' + d.winners.join('·') : '', d.losers.length ? '잃는 쪽 ' + d.losers.join('·') : ''].filter(Boolean).join(' / ');
+      if (sides) { const w = el('div', 'c'); w.append(el('i', '', '계층'), document.createTextNode(sides)); row.append(w); }
+      if (!locked) { const rf = el('div', 'r'); rf.append(el('i', '', d.on ? '없애려면' : '들이려면'), document.createTextNode(d.reform)); row.append(rf); }
+      det.append(row);
+    });
+    return det;
+  }));
+}
+
+// ───────── 자원 ─────────
+function renderResources() {
+  const rows = S.resources.map(d => {
+    const tr = el('tr');
+    if (!d.revealed) {
+      tr.append(el('td', 't dim', d.name), el('td', 'dim', '—'), el('td', 'dim', '—'), el('td', 'wrap dim', `아직 알아보지 못한다 (${d.era}의 기술 '${d.tech}')`));
+      return tr;
+    }
+    const how = d.supply >= 1 ? (d.own > 0 ? '자급' : '바다 건너') : d.supply > 0 ? '사서 쓴다' : '없다';
+    const sup = meterCell(d.supply); sup.lastChild.textContent = how;
+    const note = el('td', 'wrap', d.use + (d.own === 0 && d.holders.length ? ` — 가진 곳: ${d.holders.join(', ')}` : ''));
+    tr.append(el('td', 't', d.name), el('td', '', d.own ? d.own + '곳' : '—'), sup, note);
+    return tr;
+  });
+  $('resTable').replaceChildren(headRow(['자원', '우리 땅', '쓸 수 있는 만큼', '쓰임'], [0, 3]), ...rows);
+}
+
+// ───────── 기술 나무 ─────────
+function renderTech() {
+  const R = S.research, cur = S.techs.find(t => t.key === R.key);
+  const now = $('techNow');
+  now.replaceChildren();
+  if (cur) {
+    const left = Math.max(0, cur.cost - R.progress), yrs = R.rate > 0 ? Math.ceil(left / R.rate) : null;
+    now.append('지금 파고드는 것 — ', el('b', '', cur.name), ` ${R.progress.toFixed(0)}/${cur.cost} (한 해 +${R.rate.toFixed(1)}${yrs != null ? `, 약 ${yrs}년` : ''}). 테두리가 파란 기술을 누르면 그쪽으로 돌린다 — 하던 것을 접으면 쌓은 것의 절반을 잃는다.`);
+  } else now.append(R.known >= R.total ? '익힐 수 있는 것은 모두 익혔다.' : '이 시대에 더 익힐 것이 없다. 다음 시대가 열려야 한다.');
+
+  const sig = S.techs.map(t => (t.known ? 'k' : t.can ? 'c' : 'l')).join('') + '|' + R.key + '|' + S.eraIndex + '|' + $('techTree').clientWidth;
+  const box = $('techTree');
+  if (sig !== techSig) {
+    techSig = sig;
+    const cols = ERAS.map((era, i) => {
+      const col = el('div', 'tcol' + (i > S.eraIndex ? ' future' : ''));
+      col.append(el('h3', '', era));
+      S.techs.filter(t => t.era === i).forEach(t => {
+        const state = t.known ? 'known' : t.key === R.key ? 'can now' : t.can ? 'can' : 'locked';
+        const b = el('button', 'tech ' + state);
+        b.dataset.key = t.key; b.disabled = !t.can; b.type = 'button';
+        b.append(el('span', 'tn', (t.known ? '✓ ' : '') + t.name), el('span', 'tc', t.known ? '익혔다' : `지식 ${t.cost}`));
+        if (t.key === R.key) { const bar = el('span', 'bar'); bar.append(el('i')); b.append(bar); }
+        const need = t.requires.map(k => S.techs.find(x => x.key === k).name);
+        const rows = [['h', `${t.name} · ${ERAS[t.era]}`], ['r', t.effect]];
+        if (need.length) rows.push(['r', '먼저 알아야 하는 것: ' + need.join(', ')]);
+        if (t.unlocks.length) rows.push(['r', '여는 제도: ' + t.unlocks.join(', ')]);
+        if (t.reveals) rows.push(['r', '알아보게 되는 자원: ' + t.reveals]);
+        if (!t.known && !t.can) rows.push(['r', t.era > S.eraIndex ? `${ERAS[t.era]} 시대가 열려야 한다` : '앞선 기술이 모자란다']);
+        b.addEventListener('pointermove', ev => mapTip(rows, ev.clientX, ev.clientY));
+        b.addEventListener('pointerleave', () => { mapTip(null); box.querySelectorAll('path.hl').forEach(p => p.classList.remove('hl')); });
+        b.addEventListener('pointerenter', () => box.querySelectorAll('svg path').forEach(p => p.classList.toggle('hl', p.dataset.from === t.key || p.dataset.to === t.key)));
+        if (t.can && t.key !== R.key) b.addEventListener('click', () => { mapTip(null); call('/api/research?key=' + t.key); });
+        col.append(b);
+      });
+      return col;
+    });
+    box.replaceChildren(...cols);
+    // 앞선 기술에서 이어지는 줄.
+    const svg = sv('svg', {}), bb = box.getBoundingClientRect();
+    const rect = k => { const r = box.querySelector(`[data-key="${k}"]`).getBoundingClientRect(); return { l: r.left - bb.left, r: r.right - bb.left, y: r.top - bb.top + r.height / 2, cx: r.left - bb.left + r.width / 2, t: r.top - bb.top, b: r.bottom - bb.top }; };
+    S.techs.forEach(t => t.requires.forEach(k => {
+      const a = rect(k), b = rect(t.key), from = S.techs.find(x => x.key === k);
+      const d = from.era === t.era
+        ? `M${a.l} ${a.y}C${a.l - 12} ${a.y} ${b.l - 12} ${b.y} ${b.l} ${b.y}`
+        : `M${a.r} ${a.y}C${a.r + 14} ${a.y} ${b.l - 14} ${b.y} ${b.l} ${b.y}`;
+      const ln = sv('path', { d, fill: 'none', stroke: from.known ? css('--s3') : css('--axis'), 'stroke-width': from.known ? 1.6 : 1.2 });
+      ln.dataset.from = k; ln.dataset.to = t.key;
+      svg.append(ln);
+    }));
+    box.prepend(svg);
+  }
+  const bar = box.querySelector('.tech.now .bar i');
+  if (bar && cur) bar.style.width = Math.min(100, R.progress / cur.cost * 100) + '%';
+}
+
+// ───────── 그림 ─────────
+const M ={ l: 40, r: 44, t: 8, b: 22 };
+function frame(svg, yTicks, yPos, yLabel) {
+  const w = svg.clientWidth || 480, h = +svg.getAttribute('height');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.replaceChildren();
+  const y0 = hist[0][H.year], y1 = Math.max(hist[hist.length - 1][H.year], y0 + 1);
+  const x = yr => M.l + (yr - y0) / (y1 - y0) * (w - M.l - M.r);
+  yTicks.forEach(v => {
+    const y = yPos(v);
+    svg.append(sv('line', { x1: M.l, x2: w - M.r, y1: y, y2: y, stroke: css('--grid'), 'stroke-width': 1 }));
+    const t = sv('text', { x: M.l - 6, y: y + 4, 'text-anchor': 'end' }); t.textContent = yLabel(v); svg.append(t);
+  });
+  const span = y1 - y0, step = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500].find(s => span / s <= 7) || 1000;
+  for (let yr = Math.ceil(y0 / step) * step; yr <= y1; yr += step) {
+    const t = sv('text', { x: x(yr), y: h - 6, 'text-anchor': 'middle' }); t.textContent = yr + '년'; svg.append(t);
+  }
+  return { w, h, x };
+}
+function path(pts) { return pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(''); }
+function endDot(svg, x, y, color, label) {
+  svg.append(sv('circle', { cx: x, cy: y, r: 5, fill: css('--surface') }), sv('circle', { cx: x, cy: y, r: 4, fill: color }));
+  if (label != null) { const t = sv('text', { x: x + 8, y: y + 4 }); t.textContent = label; t.style.fill = css('--ink2'); svg.append(t); }
+}
+function crosshair(svg, f, top, bottom) {
+  if (hover < 0 || hover >= hist.length) return;
+  const cx = f.x(hist[hover][H.year]);
+  svg.append(sv('line', { x1: cx, x2: cx, y1: top, y2: bottom, stroke: css('--axis'), 'stroke-width': 1 }));
+  return cx;
+}
+
+function renderCharts() {
+  renderLegends();
+  if (hist.length < 2) { $('popChart').replaceChildren(); $('moodChart').replaceChildren(); return; }
+
+  // 사람 수 (로그 눈금) + 단계 띠
+  const pop = $('popChart'), ph = +pop.getAttribute('height'), stripH = 8, plotB = ph - M.b - stripH - 6;
+  const maxPop = Math.max(...hist.map(h => h[H.pop]), 100), top = Math.ceil(Math.log10(maxPop));
+  const py = v => plotB - Math.log10(Math.max(v, 1)) / top * (plotB - M.t);
+  const ticks = []; for (let e = 1; e <= top; e++) ticks.push(10 ** e);
+  const f = frame(pop, ticks, py, compact);
+  pop.append(sv('line', { x1: M.l, x2: f.w - M.r, y1: plotB, y2: plotB, stroke: css('--axis'), 'stroke-width': 1 }));
+  const pts = hist.map(h => [f.x(h[H.year]), py(h[H.pop])]);
+  pop.append(sv('path', { d: path(pts) + `L${pts[pts.length - 1][0]} ${plotB}L${pts[0][0]} ${plotB}Z`, fill: css('--s1'), opacity: 0.1 }));
+  pop.append(sv('path', { d: path(pts), fill: 'none', stroke: css('--s1'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+  // 단계 띠: 같은 단계가 이어진 구간마다 한 토막, 토막 사이는 2px 띄운다
+  const sy = plotB + 6;
+  for (let i = 0; i < hist.length;) {
+    let j = i; while (j + 1 < hist.length && hist[j + 1][H.stage] === hist[i][H.stage]) j++;
+    const xa = f.x(hist[i][H.year]) + (i ? 1 : 0), xb = (j + 1 < hist.length ? f.x(hist[j + 1][H.year]) - 1 : f.x(hist[j][H.year]));
+    if (xb - xa > 0.5) pop.append(sv('rect', { x: xa, y: sy, width: xb - xa, height: stripH, rx: 2, fill: css(STAGE_COLORS[hist[i][H.stage]]) }));
+    i = j + 1;
+  }
+  const last = hist[hist.length - 1];
+  const cx = crosshair(pop, f, M.t, sy + stripH);
+  if (cx != null) endDot(pop, cx, py(hist[hover][H.pop]), css('--s1'));
+  endDot(pop, pts[pts.length - 1][0], pts[pts.length - 1][1], css('--s1'), compact(last[H.pop]));
+
+  // 민심: 한 축(0~100%)에 네 줄
+  const mood = $('moodChart'), mh = +mood.getAttribute('height'), mb = mh - M.b;
+  const my = v => mb - v * (mb - M.t);
+  const g = frame(mood, [0, 0.25, 0.5, 0.75, 1], my, pct);
+  const realm = hist.filter(h => h[H.stage] > 0 || h[H.unrest] !== 0.1 || h[H.coh] !== 0.8);
+  if (realm.length > 1) MOOD.forEach(([, idx, color]) => {
+    mood.append(sv('path', { d: path(realm.map(h => [g.x(h[H.year]), my(h[idx])])), fill: 'none', stroke: css(color), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+  });
+  const mx = crosshair(mood, g, M.t, mb);
+  if (mx != null && realm.includes(hist[hover])) MOOD.forEach(([, idx, color]) => endDot(mood, mx, my(hist[hover][idx]), css(color)));
+
+  renderTable();
+}
+
+function renderLegends() {
+  $('stageLegend').replaceChildren(...S.stageNames.map((n, i) => {
+    const s = el('span'); const k = el('i', 'key-box'); k.style.background = `var(${STAGE_COLORS[i]})`; s.append(k, n); return s;
+  }));
+  const last = hist[hist.length - 1];
+  $('moodLegend').replaceChildren(...MOOD.map(([n, idx, color]) => {
+    const s = el('span'); const k = el('i', 'key-line'); k.style.background = `var(${color})`;
+    s.append(k, n); if (last && S.stageIndex > 0) s.append(el('b', '', pct(last[idx]))); return s;
+  }));
+}
+
+function renderTable() {
+  if (!document.querySelector('details.table').open) return;
+  const t = $('histTable'), step = Math.max(1, Math.ceil(hist.length / 60));
+  const head = el('tr'); ['해', '단계', '시대', '사람 수', '영토', '불만', '정통성', '결속', '불평등'].forEach((h, i) => head.append(el('th', i && i < 3 ? 't' : '', h)));
+  const rows = [];
+  for (let i = hist.length - 1; i >= 0; i -= step) {
+    const h = hist[i], tr = el('tr');
+    tr.append(el('td', '', h[H.year] + '년'), el('td', 't', S.stageNames[h[H.stage]]), el('td', 't', ERAS[h[H.era]]), el('td', '', num(h[H.pop])), el('td', '', h[H.terr]));
+    [H.unrest, H.legit, H.coh, H.ineq].forEach(k => tr.append(el('td', '', h[H.stage] ? pct(h[k]) : '—')));
+    rows.push(tr);
+  }
+  t.replaceChildren(head, ...rows);
+}
+document.querySelector('details.table').addEventListener('toggle', renderTable);
+
+// 십자선과 말풍선: 가장 가까운 해에 붙는다. 두 그림이 같은 해를 가리킨다.
+function showTip(i, px, py) {
+  hover = i;
+  renderCharts();
+  const tip = $('tip');
+  if (i < 0 || !hist[i]) { tip.style.display = 'none'; return; }
+  const h = hist[i];
+  const rows = [el('div', 'h', `${h[H.year]}년 · ${ERAS[h[H.era]]} · ${S.stageNames[h[H.stage]]}`)];
+  const row = (color, name, value) => { const r = el('div', 'r'); const k = el('i', 'key-line'); k.style.background = `var(${color})`; r.append(k, el('span', 'n', name), el('b', '', value)); return r; };
+  rows.push(row('--s1', h[H.stage] ? '백성' : '사람', num(h[H.pop])));
+  if (h[H.stage]) MOOD.forEach(([n, idx, color]) => rows.push(row(color, n, pct(h[idx]))));
+  tip.replaceChildren(...rows);
+  tip.style.display = 'block';
+  const w = tip.offsetWidth, hgt = tip.offsetHeight;
+  tip.style.left = Math.min(px + 14, innerWidth - w - 8) + 'px';
+  tip.style.top = Math.max(8, Math.min(py - hgt - 10, innerHeight - hgt - 8)) + 'px';
+}
+['popChart', 'moodChart'].forEach(id => {
+  const svg = $(id);
+  const nearest = ev => {
+    if (hist.length < 2) return -1;
+    const b = svg.getBoundingClientRect(), w = b.width;
+    const y0 = hist[0][H.year], y1 = hist[hist.length - 1][H.year];
+    const yr = y0 + (ev.clientX - b.left - M.l) / (w - M.l - M.r) * (y1 - y0);
+    return Math.max(0, Math.min(hist.length - 1, Math.round(yr - y0)));
+  };
+  svg.addEventListener('pointermove', ev => showTip(nearest(ev), ev.clientX, ev.clientY));
+  svg.addEventListener('pointerleave', () => showTip(-1));
+  svg.addEventListener('blur', () => showTip(-1));
+  svg.addEventListener('keydown', ev => {
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+    ev.preventDefault();
+    const i = Math.max(0, Math.min(hist.length - 1, (hover < 0 ? hist.length - 1 : hover) + (ev.key === 'ArrowLeft' ? -1 : 1) * (ev.shiftKey ? 10 : 1)));
+    const b = svg.getBoundingClientRect();
+    showTip(i, b.left + M.l + i / Math.max(1, hist.length - 1) * (b.width - M.l - M.r), b.top + 40);
+  });
+});
+addEventListener('resize', () => S && renderCharts());
+
+// ───────── 조작 ─────────
+function setPlaying(on) {
+  playing = on;
+  $('play').textContent = on ? '⏸ 멈춤' : '▶ 진행';
+  if (on) loop();
+}
+async function loop() {
+  if (!playing) return;
+  const [n, delay] = SPEEDS[$('speed').value];
+  await call(`/api/step?seasons=${n}`);
+  if (playing) setTimeout(loop, delay);
+}
+$('play').addEventListener('click', () => setPlaying(!playing));
+$('step1').addEventListener('click', () => call('/api/step?seasons=4'));
+$('step10').addEventListener('click', () => call('/api/step?seasons=40'));
+$('auto').addEventListener('change', e => call('/api/auto?on=' + e.target.checked));
+$('new').addEventListener('click', () => { setPlaying(false); call('/api/new?seed=' + (parseInt($('seed').value) || 1)); });
+$('minor').addEventListener('change', e => $('log').classList.toggle('minor', e.target.checked));
+function tab(which) {
+  curTab = which;
+  $('log').style.display = which === 'log' ? 'block' : 'none';
+  $('people').style.display = which === 'people' ? 'block' : 'none';
+  $('tech').style.display = which === 'tech' ? 'block' : 'none';
+  $('minorWrap').style.visibility = which === 'log' ? 'visible' : 'hidden';
+  $('tabLog').setAttribute('aria-selected', which === 'log');
+  $('tabPeople').setAttribute('aria-selected', which === 'people');
+  $('tabTech').setAttribute('aria-selected', which === 'tech');
+  if (which === 'people' && S) renderPeople();
+  if (which === 'tech' && S) { techSig = ''; renderTech(); }
+}
+$('tabLog').addEventListener('click', () => tab('log'));
+$('tabPeople').addEventListener('click', () => tab('people'));
+$('tabTech').addEventListener('click', () => tab('tech'));
+
+call('/api/state', 'GET');
+</script>
+</body>
+</html>

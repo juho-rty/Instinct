@@ -1,0 +1,1112 @@
+{
+ "frame": 128,
+ "ground": 108,
+ "frames": 8,
+ "dirs": [
+  "S",
+  "SE",
+  "E",
+  "NE",
+  "N"
+ ],
+ "bodies": {
+  "man": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "carry_food_S": [
+    10,
+    8
+   ],
+   "carry_food_SE": [
+    11,
+    8
+   ],
+   "carry_food_E": [
+    12,
+    8
+   ],
+   "carry_food_NE": [
+    13,
+    8
+   ],
+   "carry_food_N": [
+    14,
+    8
+   ],
+   "carry_wood_S": [
+    15,
+    8
+   ],
+   "carry_wood_SE": [
+    16,
+    8
+   ],
+   "carry_wood_E": [
+    17,
+    8
+   ],
+   "carry_wood_NE": [
+    18,
+    8
+   ],
+   "carry_wood_N": [
+    19,
+    8
+   ],
+   "carry_stone_S": [
+    20,
+    8
+   ],
+   "carry_stone_SE": [
+    21,
+    8
+   ],
+   "carry_stone_E": [
+    22,
+    8
+   ],
+   "carry_stone_NE": [
+    23,
+    8
+   ],
+   "carry_stone_N": [
+    24,
+    8
+   ],
+   "chop_SE": [
+    25,
+    8
+   ],
+   "chop_E": [
+    26,
+    8
+   ],
+   "chop_NE": [
+    27,
+    8
+   ],
+   "pick_SE": [
+    28,
+    8
+   ],
+   "pick_E": [
+    29,
+    8
+   ],
+   "pick_NE": [
+    30,
+    8
+   ],
+   "hoe_SE": [
+    31,
+    8
+   ],
+   "hoe_E": [
+    32,
+    8
+   ],
+   "hoe_NE": [
+    33,
+    8
+   ],
+   "hammer_SE": [
+    34,
+    8
+   ],
+   "hammer_E": [
+    35,
+    8
+   ],
+   "hammer_NE": [
+    36,
+    8
+   ],
+   "bow_SE": [
+    37,
+    8
+   ],
+   "bow_E": [
+    38,
+    8
+   ],
+   "bow_NE": [
+    39,
+    8
+   ],
+   "fish_SE": [
+    40,
+    8
+   ],
+   "fish_E": [
+    41,
+    8
+   ],
+   "fish_NE": [
+    42,
+    8
+   ],
+   "gather_SE": [
+    43,
+    8
+   ],
+   "gather_E": [
+    44,
+    8
+   ],
+   "gather_NE": [
+    45,
+    8
+   ],
+   "scout_SE": [
+    46,
+    8
+   ],
+   "scout_E": [
+    47,
+    8
+   ],
+   "scout_NE": [
+    48,
+    8
+   ]
+  },
+  "hunter": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "carry_food_S": [
+    10,
+    8
+   ],
+   "carry_food_SE": [
+    11,
+    8
+   ],
+   "carry_food_E": [
+    12,
+    8
+   ],
+   "carry_food_NE": [
+    13,
+    8
+   ],
+   "carry_food_N": [
+    14,
+    8
+   ],
+   "carry_wood_S": [
+    15,
+    8
+   ],
+   "carry_wood_SE": [
+    16,
+    8
+   ],
+   "carry_wood_E": [
+    17,
+    8
+   ],
+   "carry_wood_NE": [
+    18,
+    8
+   ],
+   "carry_wood_N": [
+    19,
+    8
+   ],
+   "carry_stone_S": [
+    20,
+    8
+   ],
+   "carry_stone_SE": [
+    21,
+    8
+   ],
+   "carry_stone_E": [
+    22,
+    8
+   ],
+   "carry_stone_NE": [
+    23,
+    8
+   ],
+   "carry_stone_N": [
+    24,
+    8
+   ],
+   "chop_SE": [
+    25,
+    8
+   ],
+   "chop_E": [
+    26,
+    8
+   ],
+   "chop_NE": [
+    27,
+    8
+   ],
+   "pick_SE": [
+    28,
+    8
+   ],
+   "pick_E": [
+    29,
+    8
+   ],
+   "pick_NE": [
+    30,
+    8
+   ],
+   "hoe_SE": [
+    31,
+    8
+   ],
+   "hoe_E": [
+    32,
+    8
+   ],
+   "hoe_NE": [
+    33,
+    8
+   ],
+   "hammer_SE": [
+    34,
+    8
+   ],
+   "hammer_E": [
+    35,
+    8
+   ],
+   "hammer_NE": [
+    36,
+    8
+   ],
+   "bow_SE": [
+    37,
+    8
+   ],
+   "bow_E": [
+    38,
+    8
+   ],
+   "bow_NE": [
+    39,
+    8
+   ],
+   "fish_SE": [
+    40,
+    8
+   ],
+   "fish_E": [
+    41,
+    8
+   ],
+   "fish_NE": [
+    42,
+    8
+   ],
+   "gather_SE": [
+    43,
+    8
+   ],
+   "gather_E": [
+    44,
+    8
+   ],
+   "gather_NE": [
+    45,
+    8
+   ],
+   "scout_SE": [
+    46,
+    8
+   ],
+   "scout_E": [
+    47,
+    8
+   ],
+   "scout_NE": [
+    48,
+    8
+   ]
+  },
+  "woman": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "carry_food_S": [
+    10,
+    8
+   ],
+   "carry_food_SE": [
+    11,
+    8
+   ],
+   "carry_food_E": [
+    12,
+    8
+   ],
+   "carry_food_NE": [
+    13,
+    8
+   ],
+   "carry_food_N": [
+    14,
+    8
+   ],
+   "carry_wood_S": [
+    15,
+    8
+   ],
+   "carry_wood_SE": [
+    16,
+    8
+   ],
+   "carry_wood_E": [
+    17,
+    8
+   ],
+   "carry_wood_NE": [
+    18,
+    8
+   ],
+   "carry_wood_N": [
+    19,
+    8
+   ],
+   "carry_stone_S": [
+    20,
+    8
+   ],
+   "carry_stone_SE": [
+    21,
+    8
+   ],
+   "carry_stone_E": [
+    22,
+    8
+   ],
+   "carry_stone_NE": [
+    23,
+    8
+   ],
+   "carry_stone_N": [
+    24,
+    8
+   ],
+   "chop_SE": [
+    25,
+    8
+   ],
+   "chop_E": [
+    26,
+    8
+   ],
+   "chop_NE": [
+    27,
+    8
+   ],
+   "pick_SE": [
+    28,
+    8
+   ],
+   "pick_E": [
+    29,
+    8
+   ],
+   "pick_NE": [
+    30,
+    8
+   ],
+   "hoe_SE": [
+    31,
+    8
+   ],
+   "hoe_E": [
+    32,
+    8
+   ],
+   "hoe_NE": [
+    33,
+    8
+   ],
+   "hammer_SE": [
+    34,
+    8
+   ],
+   "hammer_E": [
+    35,
+    8
+   ],
+   "hammer_NE": [
+    36,
+    8
+   ],
+   "bow_SE": [
+    37,
+    8
+   ],
+   "bow_E": [
+    38,
+    8
+   ],
+   "bow_NE": [
+    39,
+    8
+   ],
+   "fish_SE": [
+    40,
+    8
+   ],
+   "fish_E": [
+    41,
+    8
+   ],
+   "fish_NE": [
+    42,
+    8
+   ],
+   "gather_SE": [
+    43,
+    8
+   ],
+   "gather_E": [
+    44,
+    8
+   ],
+   "gather_NE": [
+    45,
+    8
+   ],
+   "scout_SE": [
+    46,
+    8
+   ],
+   "scout_E": [
+    47,
+    8
+   ],
+   "scout_NE": [
+    48,
+    8
+   ]
+  },
+  "woman2": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "carry_food_S": [
+    10,
+    8
+   ],
+   "carry_food_SE": [
+    11,
+    8
+   ],
+   "carry_food_E": [
+    12,
+    8
+   ],
+   "carry_food_NE": [
+    13,
+    8
+   ],
+   "carry_food_N": [
+    14,
+    8
+   ],
+   "carry_wood_S": [
+    15,
+    8
+   ],
+   "carry_wood_SE": [
+    16,
+    8
+   ],
+   "carry_wood_E": [
+    17,
+    8
+   ],
+   "carry_wood_NE": [
+    18,
+    8
+   ],
+   "carry_wood_N": [
+    19,
+    8
+   ],
+   "carry_stone_S": [
+    20,
+    8
+   ],
+   "carry_stone_SE": [
+    21,
+    8
+   ],
+   "carry_stone_E": [
+    22,
+    8
+   ],
+   "carry_stone_NE": [
+    23,
+    8
+   ],
+   "carry_stone_N": [
+    24,
+    8
+   ],
+   "chop_SE": [
+    25,
+    8
+   ],
+   "chop_E": [
+    26,
+    8
+   ],
+   "chop_NE": [
+    27,
+    8
+   ],
+   "pick_SE": [
+    28,
+    8
+   ],
+   "pick_E": [
+    29,
+    8
+   ],
+   "pick_NE": [
+    30,
+    8
+   ],
+   "hoe_SE": [
+    31,
+    8
+   ],
+   "hoe_E": [
+    32,
+    8
+   ],
+   "hoe_NE": [
+    33,
+    8
+   ],
+   "hammer_SE": [
+    34,
+    8
+   ],
+   "hammer_E": [
+    35,
+    8
+   ],
+   "hammer_NE": [
+    36,
+    8
+   ],
+   "bow_SE": [
+    37,
+    8
+   ],
+   "bow_E": [
+    38,
+    8
+   ],
+   "bow_NE": [
+    39,
+    8
+   ],
+   "fish_SE": [
+    40,
+    8
+   ],
+   "fish_E": [
+    41,
+    8
+   ],
+   "fish_NE": [
+    42,
+    8
+   ],
+   "gather_SE": [
+    43,
+    8
+   ],
+   "gather_E": [
+    44,
+    8
+   ],
+   "gather_NE": [
+    45,
+    8
+   ],
+   "scout_SE": [
+    46,
+    8
+   ],
+   "scout_E": [
+    47,
+    8
+   ],
+   "scout_NE": [
+    48,
+    8
+   ]
+  },
+  "child": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "play_S": [
+    10,
+    8
+   ],
+   "play_SE": [
+    11,
+    8
+   ],
+   "play_E": [
+    12,
+    8
+   ]
+  },
+  "soldier": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "guard_SE": [
+    10,
+    8
+   ],
+   "guard_E": [
+    11,
+    8
+   ],
+   "guard_NE": [
+    12,
+    8
+   ]
+  },
+  "chief": {
+   "idle_S": [
+    0,
+    4
+   ],
+   "idle_SE": [
+    1,
+    4
+   ],
+   "idle_E": [
+    2,
+    4
+   ],
+   "idle_NE": [
+    3,
+    4
+   ],
+   "idle_N": [
+    4,
+    4
+   ],
+   "walk_S": [
+    5,
+    8
+   ],
+   "walk_SE": [
+    6,
+    8
+   ],
+   "walk_E": [
+    7,
+    8
+   ],
+   "walk_NE": [
+    8,
+    8
+   ],
+   "walk_N": [
+    9,
+    8
+   ],
+   "carry_food_S": [
+    10,
+    8
+   ],
+   "carry_food_SE": [
+    11,
+    8
+   ],
+   "carry_food_E": [
+    12,
+    8
+   ],
+   "carry_food_NE": [
+    13,
+    8
+   ],
+   "carry_food_N": [
+    14,
+    8
+   ],
+   "carry_wood_S": [
+    15,
+    8
+   ],
+   "carry_wood_SE": [
+    16,
+    8
+   ],
+   "carry_wood_E": [
+    17,
+    8
+   ],
+   "carry_wood_NE": [
+    18,
+    8
+   ],
+   "carry_wood_N": [
+    19,
+    8
+   ],
+   "carry_stone_S": [
+    20,
+    8
+   ],
+   "carry_stone_SE": [
+    21,
+    8
+   ],
+   "carry_stone_E": [
+    22,
+    8
+   ],
+   "carry_stone_NE": [
+    23,
+    8
+   ],
+   "carry_stone_N": [
+    24,
+    8
+   ],
+   "chop_SE": [
+    25,
+    8
+   ],
+   "chop_E": [
+    26,
+    8
+   ],
+   "chop_NE": [
+    27,
+    8
+   ],
+   "pick_SE": [
+    28,
+    8
+   ],
+   "pick_E": [
+    29,
+    8
+   ],
+   "pick_NE": [
+    30,
+    8
+   ],
+   "hoe_SE": [
+    31,
+    8
+   ],
+   "hoe_E": [
+    32,
+    8
+   ],
+   "hoe_NE": [
+    33,
+    8
+   ],
+   "hammer_SE": [
+    34,
+    8
+   ],
+   "hammer_E": [
+    35,
+    8
+   ],
+   "hammer_NE": [
+    36,
+    8
+   ],
+   "bow_SE": [
+    37,
+    8
+   ],
+   "bow_E": [
+    38,
+    8
+   ],
+   "bow_NE": [
+    39,
+    8
+   ],
+   "fish_SE": [
+    40,
+    8
+   ],
+   "fish_E": [
+    41,
+    8
+   ],
+   "fish_NE": [
+    42,
+    8
+   ],
+   "gather_SE": [
+    43,
+    8
+   ],
+   "gather_E": [
+    44,
+    8
+   ],
+   "gather_NE": [
+    45,
+    8
+   ],
+   "scout_SE": [
+    46,
+    8
+   ],
+   "scout_E": [
+    47,
+    8
+   ],
+   "scout_NE": [
+    48,
+    8
+   ]
+  }
+ }
+}

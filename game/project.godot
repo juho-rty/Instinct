@@ -1,0 +1,27 @@
+; Instinct — Godot 4 (.NET) 클라이언트. 시뮬레이션은 ../src/Instinct.Sim 을 그대로 쓴다.
+config_version=5
+
+[application]
+
+config/name="Instinct"
+run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
+config/icon="res://icon.png"
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/size/mode=2
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[dotnet]
+
+project/assembly_name="Instinct.Game"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.36, 0.45, 0.48, 1)
